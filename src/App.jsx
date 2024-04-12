@@ -13,6 +13,7 @@ function App() {
   */
   const [weatherInfo, setWeatherInfo] = useState({});
   const [currentInfo, setCurrentInfo] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     navigator.geolocation ? navigator.geolocation.getCurrentPosition(showPosition) : null
@@ -45,6 +46,7 @@ function App() {
 
   const weatherApiCall = (params) => {
     console.log(params);
+    setIsLoading(!isLoading);
     let url = "";
     let latitude = params.latitude ? params.latitude : currentInfo.latitude;
     let longitude = params.longitude ? params.longitude : currentInfo.longitude;
@@ -65,6 +67,7 @@ function App() {
       const celsius = Math.round(data.main.temp);
       const fahrenheit = Math.round(((celsius * 9) / 5 + 32).toFixed(2));
       const weather = data.weather[0].description;
+      setIsLoading(!isLoading);
 
       setWeatherInfo({
         city ,
@@ -83,6 +86,7 @@ function App() {
   };
 
   return (
+    !isLoading ? 
     <>
       <h1 className='title'>Global Current Weather</h1>
       <div className='weather-container'>
@@ -99,6 +103,7 @@ function App() {
         <button onClick={handleClickWeather}>seoul</button>
       </div>
     </>
+    : ''
   )
 }
 
