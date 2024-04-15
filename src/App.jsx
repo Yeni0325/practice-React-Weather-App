@@ -16,12 +16,10 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    navigator.geolocation ? navigator.geolocation.getCurrentPosition(showPosition) : null
-    
-    function showPosition(position) {
+    navigator.geolocation.getCurrentPosition((position) => {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
-      const apiId = "d090564bf804fbeaa9a1826d250f19ca";
+      const apiId = import.meta.env.VITE_WEATHER_API_KEY;
       const cityName = "Current Location";
 
       weatherApiCall({
@@ -30,12 +28,14 @@ function App() {
         apiId ,
         cityName ,
       }, saveCurrentInfo(latitude, longitude));
-    }
+    
+    })
+
   }, []);
   
   const handleClickWeather  = (e) => {
     const cityName = e.target.textContent;
-    const apiId = "d090564bf804fbeaa9a1826d250f19ca";
+    const apiId = import.meta.env.VITE_WEATHER_API_KEY;
 
     weatherApiCall({
       cityName , 
@@ -46,7 +46,7 @@ function App() {
 
   const weatherApiCall = (params) => {
     console.log(params);
-    setIsLoading(!isLoading);
+    setIsLoading(true);
     let url = "";
     let latitude = params.latitude ? params.latitude : currentInfo.latitude;
     let longitude = params.longitude ? params.longitude : currentInfo.longitude;
@@ -54,7 +54,7 @@ function App() {
     if(params.cityName === "Current Location"){
       url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&exclude=current&appid=${params.apiId}&lang=kr&units=metric`;
     } else {
-      url = `https://api.openweathermap.org/data/2.5/weather?q=${params.cityName}&appid=${params.apiId}`
+      url = `https://api.openweathermap.org/data/2.5/weather?q=${params.cityName}&appid=${params.apiId}&lang=kr&units=metric`
     }
 
     fetch(url)
@@ -67,7 +67,7 @@ function App() {
       const celsius = Math.round(data.main.temp);
       const fahrenheit = Math.round(((celsius * 9) / 5 + 32).toFixed(2));
       const weather = data.weather[0].description;
-      setIsLoading(!isLoading);
+      setIsLoading(false);
 
       setWeatherInfo({
         city ,
@@ -79,6 +79,7 @@ function App() {
   };
 
   const saveCurrentInfo = (latitude, longitude) => {
+    console.log(isLoading);
     setCurrentInfo({
       latitude , 
       longitude ,
@@ -86,7 +87,7 @@ function App() {
   };
 
   return (
-    !isLoading ? 
+    isLoading ? 'Loading...' : 
     <>
       <h1 className='title'>Global Current Weather</h1>
       <div className='weather-container'>
@@ -103,7 +104,6 @@ function App() {
         <button onClick={handleClickWeather}>seoul</button>
       </div>
     </>
-    : ''
   )
 }
 
